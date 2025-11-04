@@ -3,25 +3,22 @@
 > **Abstract**：Face super-resolution (FSR) aims to restore clear and realistic high-quality face images from low-quality ones, which demands simultaneous preservation of facial symmetry, global proportion and pore-level detail. CNN-based methods suffer from limited receptive fields, leading to geometric distortion and over-smoothed skin, while Transformers introduce quadratic complexity due to self-attention that hinders high-resolution inference. The recently proposed Mamba achieves linear complexity, yet its native 1-D scanning breaks 2-D facial adjacency and lacks frequency-aware degradation modeling, easily yielding asymmetric features and missing high-frequency details. To address these problems, we propose HybriMamba, a linear-complexity face super-resolution framework that equips Mamba with an Image-Selective Scan Module (Image-SSM) that restores pixel adjacency and enforces horizontal facial symmetry, a Fourier–Wavelet Transform Module (FWM) that globally modulates magnitude spectra and directionally processes wavelet sub-bands to recover fine facial details, and a Local Enhancement Module (LEM) with pixel-wise gating that adaptively re-weights smooth and textured regions to avoid over-smoothing. Embedded in a U-shaped multi-scale encoder–decoder, HybriMamba hierarchically retains facial geometry while injecting micro-textures through skip connections. Extensive experiments on Helen and CelebA show that HybriMamba achieves the best PSNR, SSIM and LPIPS among state-of-the-art methods, delivering identity-faithful and visually pleasing results.
 
 ## 🏗️ Network Architecture
-
-
-
+!(assets/1.jpg)
+!(assets/2.jpg)
+!(assets/3.jpg)
 
 ## 🚀 Quick Start
 ```bash
 git clone https://github.com/LateAutu/HybriMamba.git
 cd HybriMamba
-pip install -r requirements.txt
+
+```
 
 ## 📦 Installation
 ```bash
-# 1. 创建虚拟环境（可选）
-conda create -n hybridmamba python=3.9
-conda activate hybridmamba
-
-# 2. 安装依赖
+git clone https://github.com/LateAutu/HybriMamba.git
+cd HybriMamba
 pip install -r requirements.txt
-
 
 ## 📦 Installation
 ```bash
