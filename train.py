@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 torch.save(generator.state_dict(),'./ckpt/demo_model%03d.pt'%cur_iters)
             if cur_iters % opt.save_latest_freq == 0:
                 print("saving lastest ckpt")
-                torch.save(generator.state_dict(),'./ckpt/lastest_demo_model.pt')
+                torch.save(generator.state_dict(),'./ckpt/latest_demo_model.pt')
         scheduler_G.step()
         lr_G = scheduler_G.get_lr()
         print("current learning rate is:")
