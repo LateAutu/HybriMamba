@@ -7,105 +7,89 @@
 ![](assets/2.jpg)
 ![](assets/3.jpg)
 
-## 🚀 Quick Start
-```bash
-git clone https://github.com/LateAutu/HybriMamba.git
-cd HybriMamba
-
-```
 
 ## 📦 Installation
 ```bash
 git clone https://github.com/LateAutu/HybriMamba.git
 cd HybriMamba
-pip install -r requirements.txt
-
-## 📦 Installation
-```bash
-# 1. 创建虚拟环境（可选）
-conda create -n hybridmamba python=3.9
-conda activate hybridmamba
-
-# 2. 安装依赖
-pip install -r requirements.txt
 ```
 
+We have trained and tested our codes on Python=3.9, Pytorch=2.5.1, and CUDA=12.1.
+```bash
+# 1. Create a virtual environment (optional)
+conda create -n HybriMamba python=3.9
+conda activate HybriMamba
+
+# 2. Install dependencies
+pip install -r requirements.txt
+```
 
 ## 🏋️ Training
-1. 下载 [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) 原图，**无需预对齐**。
-2. 修改脚本路径与实验名：
+We use CelebA dataset to train our HybriMamba. The training commands are provided in script `train.sh`.
+1. You should download [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) to train our model. Please change the `--dataroot` to the path where your training images are stored.
+2. If there's not enough memory, you can turn down the `--batch_size`.
+3. You can use `--continue_train` option to resume training from the last saved checkpoint.
+4. `--gpus` specify the number of GPUs used to train. To specify the GPU index, change the `export CUDA_VISIBLE_DEVICES=`.
+5. Logs will be saved to the `check_points` folder, and model weights will be stored in the `ckpt` folder.
 ```bash
-bash train.sh \
-  --dataroot </path/to/CelebA> \
-  --name <exp_name>        \
-  --batch_size 32          \
-  --gpus 2
-```
-
-| 参数 | 说明 |
-|------|------|
-| `--dataroot` | CelebA 图片根目录 |
-| `--name` | 实验名，tensorboard & 权重均以此命名 |
-| `--batch_size` | 显存不足时可调小 |
-| `--gpus` | 使用 GPU 数量；需指定卡号请取消脚本内 `export CUDA_VISIBLE_DEVICES=` 注释 |
-
-日志与权重保存结构：
-```
-checkpoints/
-├── <exp_name>/
-│   ├── latest.pth
-│   └── events.out.tfevents.*
-└── log_archive/   # 旧日志自动迁移
+# Training codes 
+export CUDA_VISIBLE_DEVICES=0,1,2
+nohup python train.py --gpus 3 --name Mamba-SRx8 --model Mamba \
+    --Gnorm "bn" --lr 0.0004 --beta1 0.9 --scale_factor 8 --load_size 128 \
+    --dataroot /data/caojianan/CelebA/celeba_train --dataset_name celeba \
+    --batch_size 32 --total_epochs 100 --visual_freq 100 --print_freq 10 \
+    --save_latest_freq 500 &
+    # --continue_train
 ```
 
 ## 🧪 Testing
+We use Helen and CelebA datasets to test our HybriMamba. The testing commands are provided in script `test.sh`.
+1. Please change the `--dataroot` to the path where your testing images are stored.
+2. Please change the `--pretrain_model_path` to the path where your model weights are saved.
+3. Results will be saved to the directory specified by `--save_as_dir`.
 ```bash
-bash test.sh \
-  --dataroot </path/to/CelebA> \
-  --name <exp_name>
+# Testing codes on Helen
+export CUDA_VISIBLE_DEVICES=4
+python test.py --gpus 1 --model Mamba --name Mamba-SRx8 \
+    --load_size 128 --dataset_name single --dataroot /data/caojianan/Helen/LR \
+    --pretrain_model_path ./ckpt/latest_demo_model.pt \
+    --save_as_dir result/Mamba-helen
 ```
-结果自动写入 `results/<exp_name>/`。
+```bash
+# Testing codes on CelebA
+export CUDA_VISIBLE_DEVICES=4
+python test.py --gpus 1 --model Mamba --name Mamba-SRx8 \
+   --load_size 128 --dataset_name single --dataroot /data/caojianan/CelebA/celeba_test/LR \
+   --pretrain_model_path ./ckpt/latest_demo_model.pt \
+   --save_as_dir result/Mamba-celeba
+```
+
+## 📊 Evaluation
+
+We provide three lightweight scripts to quantitatively evaluate **PSNR / SSIM**, **LPIPS**, and **Params & FLOPs**.
+1. To test PSNR & SSIM, run the following command:
+```bash
+python psnr_ssim.py <GT_IMG_DIR> <SR_IMG_DIR>
+```
+- `<GT_IMG_DIR>`: ground-truth images  
+- `<SR_IMG_DIR>`: super-resolution results produced by `test.sh` (i.e. the folder you set via `--save_as_dir`)
+
+2. To test LPIPS, run the following command:
+```bash
+python calc_lpips.py <GT_IMG_DIR> <SR_IMG_DIR>
+```
+
+3. To test Params & FLOPs, run the following command:
+```bash
+python param.py
+```
 
 ## 📈 Results
-### 定量对比（8× & 16× SR）
-| Method | Scale | PSNR↑ | SSIM↑ | LPIPS↓ |
-|--------|-------|-------|-------|--------|
-| Bicubic| 8×    | 24.15 | 0.712 | 0.195  |
-| ESRGAN | 8×    | 26.22 | 0.791 | 0.142  |
-| **HybriMamba** | 8× | **27.34** | **0.823** | **0.108** |
+### Quantitative Results（8× FSR）
+![](assets/6.jpg)
 
-### 可视化
-| LR (32×32) | HybriMamba | GT |
-|:----------:|:----------:|:--:|
-| ![lr](./assets/lr.png) | ![sr](./assets/sr.png) | ![gt](./assets/gt.png) |
+### Qualitative Results (8× FSR) on Helen
+![](assets/4.jpg)
 
-## 🛠️ Code Structure
-```
-HybriMamba/
-├── train.sh              # 训练入口
-├── test.sh               # 测试入口
-├── requirements.txt      # 依赖
-├── hybridmamba/
-│   ├── models/           # 网络定义
-│   ├── data/             # 数据加载
-│   └── utils/            # 工具函数
-└── checkpoints/          # 权重保存（gitignore）
-```
-
-## 📜 Citation
-```bibtex
-@misc{hybridmamba2025,
-  title={HybriMamba: Linear-Complexity Hybrid State-Space Models for Ultra-Low-Resolution Face Super-Resolution},
-  author={Your Name and Co-Authors},
-  year={2025},
-  eprint={arXiv:****.*****},
-  url={https://github.com/<LateAutu>/<HybriMamba>}
-}
-```
-
-## 📄 License
-[Apache-2.0](LICENSE) © 2025 HybriMamba Authors
-
----
-
-
+### Qualitative Results (8× FSR) on CelebA
+![](assets/5.jpg)
