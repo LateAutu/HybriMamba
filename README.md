@@ -1,11 +1,11 @@
-# HybriMamba: Fourier-Wavelet Hybrid-Enhanced Mamba with Adaptive Gating and Scanning for Realistic Face Super-Resolution
+# Spatial-Frequency Hybrid Mamba with Structure-Aware Scanning for Face Super-Resolution
 
-> **Abstract**：Face super-resolution (FSR) aims to restore clear and realistic high-resolution face images from low-resolution ones, which demands simultaneous preservation of facial symmetry, global proportion and fine-grained details. CNN-based methods suffer from limited receptive fields which leads to geometric distortion, while Transformers introduce quadratic complexity due to self-attention that hinders high-resolution inference. The recently proposed Mamba achieves linear complexity, yet its native 1-D scanning breaks 2-D facial adjacency and lacks frequency-aware modeling, easily yielding asymmetric features and missing high-frequency details. To address these problems, we propose HybriMamba, a linear-complexity face super-resolution framework that equips Mamba with an Image-Selective Scan Module (Image-SSM) that restores pixel adjacency and enforces horizontal facial symmetry, a Fourier–Wavelet Transform Module (FWM) that globally modulates magnitude spectra and directionally processes wavelet sub-bands to recover fine facial details, and a Local Enhancement Module (LEM) with pixel-wise gating that adaptively re-weights smooth and textured regions to avoid over-smoothing. Embedded in a U-shaped multi-scale encoder–decoder, HybriMamba hierarchically retains facial geometry while injecting micro-textures through skip connections. Extensive experiments on Helen and CelebA show that HybriMamba achieves the best PSNR, SSIM and LPIPS among state-of-the-art methods, delivering identity-faithful and visually pleasing results.
+> **Abstract**：Face super-resolution (FSR) aims to restore clear and realistic high-resolution face images from low-resolution ones, which demands simultaneous preservation of facial symmetry, global proportion and fine-grained details. CNN-based methods suffer from limited receptive fields which leads to geometric distortion, while Transformers rely on global self-attention that tends to smooth identity-critical high-frequency details. The recently proposed Mamba employs selective state-space updates to model long-range dependencies, yet its native 1-D scanning breaks 2-D facial adjacency and lacks frequency-aware modeling, easily yielding asymmetric features and missing high-frequency details. To address these problems, we propose HybriMamba, a face super-resolution framework that equips Mamba with an Image-Selective Scan Module (Image-SSM) that restores pixel adjacency and enforces horizontal facial symmetry to maintain facial structure consistency, a Fourier–Wavelet Transform Module (FWM) that globally modulates magnitude spectra and directionally processes wavelet sub-bands to recover fine facial details, and a Local Enhancement Module (LEM) with pixel-wise gating that adaptively re-weights smooth and textured regions to avoid over-smoothing. Embedded in a U-shaped multi-scale encoder–decoder, HybriMamba hierarchically retains facial geometry while injecting micro-textures through skip connections. Extensive experiments on Helen, CelebA and the real-world SCFace dataset show that HybriMamba achieves optimal performance among state-of-the-art methods in terms of pixel-level fidelity, perceptual quality and identity consistency, delivering robust, identity-faithful and visually pleasing results under both synthetic and realistic degradations.
 
 ## 🏗️ Network Architecture
-![](assets/1.jpg)
-![](assets/2.jpg)
-![](assets/3.jpg)
+![](assets/1.png)
+![](assets/2.png)
+![](assets/3.png)
 
 
 ## 📦 Installation
@@ -66,7 +66,7 @@ python test.py --gpus 1 --model Mamba --name Mamba-SRx8 \
 
 ## 📊 Evaluation
 
-We provide three lightweight scripts to quantitatively evaluate **PSNR / SSIM**, **LPIPS**, and **Params & FLOPs**.
+We provide two lightweight scripts to quantitatively evaluate **PSNR / SSIM** and **LPIPS**.
 1. To test PSNR & SSIM, run the following command:
 ```bash
 python psnr_ssim.py <GT_IMG_DIR> <SR_IMG_DIR>
@@ -79,17 +79,22 @@ python psnr_ssim.py <GT_IMG_DIR> <SR_IMG_DIR>
 python calc_lpips.py <GT_IMG_DIR> <SR_IMG_DIR>
 ```
 
-3. To test Params & FLOPs, run the following command:
-```bash
-python param.py
-```
-
 ## 📈 Results
 ### Quantitative Results（8× FSR）
-![](assets/6.jpg)
+![](assets/8.png)
 
 ### Qualitative Results (8× FSR) on Helen
-![](assets/4.jpg)
+![](assets/4.png)
 
 ### Qualitative Results (8× FSR) on CelebA
-![](assets/5.jpg)
+![](assets/5.png)
+
+### Quantitative Results（Real-World）
+![](assets/9.png)
+
+### Qualitative Results (Real-World) on SCFace
+![](assets/7.png)
+
+### Qualitative Results (Real-World) on Solvay Conference
+![](assets/6.png)
+
