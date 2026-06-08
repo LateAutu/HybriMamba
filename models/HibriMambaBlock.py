@@ -189,7 +189,9 @@ class LEM(nn.Module):
         x4d = x.transpose(1, 2).view(B, C, H, W)
         x1, x2 = self.expand(x4d).chunk(2, dim=1)   # (B,C,H,W)
         x1 = self.ca(x1)                            
-        x2 = self.gate(x2.flatten(2).transpose(1, 2)).view(B, C, H, W)  
+        x2_tokens = x2.flatten(2).transpose(1, 2)     # (B, H*W, C)
+        x2_gated = self.gate(x2_tokens)             # (B, H*W, C)
+        x2 = x2_gated.transpose(1, 2).contiguous().view(B, C, H, W)  # (B, C, H, W)  
         out = self.smooth(x1 * x2)                  # Hadamard
         return out.flatten(2).transpose(1, 2)       # (B, L, C)
 
